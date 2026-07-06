@@ -108,7 +108,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
         when (view.id) {
             R.id.olauncherHiddenApps -> showHiddenApps()
-            R.id.screenTimeOnOff -> viewModel.showDialog.postValue(Constants.Dialog.DIGITAL_WELLBEING)
+            R.id.screenTimeOnOff -> toggleScreenTime()
             R.id.appInfo -> openAppInfo(requireContext(), Process.myUserHandle(), BuildConfig.APPLICATION_ID)
             R.id.setLauncher -> viewModel.resetLauncherLiveData.call()
             R.id.toggleLock -> toggleLockMode()
@@ -534,9 +534,22 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.textSizeCurrent.text = formatted
     }
 
+    private fun toggleScreenTime() {
+        if (prefs.showScreenTime && requireContext().appUsagePermissionGranted()) {
+            prefs.showScreenTime = false
+        } else {
+            prefs.showScreenTime = true
+            if (requireContext().appUsagePermissionGranted().not())
+                viewModel.showDialog.postValue(Constants.Dialog.DIGITAL_WELLBEING)
+        }
+        populateScreenTimeOnOff()
+        viewModel.refreshHome(false)
+    }
+
     private fun populateScreenTimeOnOff() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (requireContext().appUsagePermissionGranted()) binding.screenTimeOnOff.text = getString(R.string.on)
+            if (prefs.showScreenTime && requireContext().appUsagePermissionGranted())
+                binding.screenTimeOnOff.text = getString(R.string.on)
             else binding.screenTimeOnOff.text = getString(R.string.off)
         } else binding.screenTimeLayout.visibility = View.GONE
     }
