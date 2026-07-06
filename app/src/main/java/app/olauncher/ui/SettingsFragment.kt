@@ -52,7 +52,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    private val showPentastic = System.currentTimeMillis() % 2 == 0L
     private var showInstagram = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -73,7 +72,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         checkAdminPermission()
 
         binding.homeAppsNum.text = prefs.homeAppsNum.toString()
-        populateProMessage()
         populateKeyboardText()
         populateScreenTimeOnOff()
         populateLockSettings()
@@ -92,9 +90,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         if (showInstagram) binding.twitter.text = getString(R.string.instagram)
         initClickListeners()
         initObservers()
-
-        if (showPentastic)
-            binding.footer.text = getText(R.string.new_app_minimal_todo_lists)
     }
 
     override fun onClick(view: View) {
@@ -113,7 +108,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
         when (view.id) {
             R.id.olauncherHiddenApps -> showHiddenApps()
-            R.id.moreFeatures -> viewModel.showDialog.postValue(Constants.Dialog.PRO_MESSAGE)
             R.id.screenTimeOnOff -> viewModel.showDialog.postValue(Constants.Dialog.DIGITAL_WELLBEING)
             R.id.appInfo -> openAppInfo(requireContext(), Process.myUserHandle(), BuildConfig.APPLICATION_ID)
             R.id.setLauncher -> viewModel.resetLauncherLiveData.call()
@@ -180,11 +174,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             )
             R.id.github -> requireContext().openUrl(Constants.URL_OLAUNCHER_GITHUB)
             R.id.privacy -> requireContext().openUrl(Constants.URL_OLAUNCHER_PRIVACY)
-            R.id.footer -> {
-                requireContext().openUrl(
-                    if (showPentastic) Constants.URL_PENTASTIC else Constants.URL_NTS
-                )
-            }
         }
     }
 
@@ -215,7 +204,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.appInfo.setOnClickListener(this)
         binding.setLauncher.setOnClickListener(this)
         binding.aboutOlauncher.setOnClickListener(this)
-        binding.moreFeatures.setOnClickListener(this)
         binding.autoShowKeyboard.setOnClickListener(this)
         binding.toggleLock.setOnClickListener(this)
         // Home button for recents feature disabled
@@ -253,7 +241,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.twitter.setOnClickListener(this)
         binding.github.setOnClickListener(this)
         binding.privacy.setOnClickListener(this)
-        binding.footer.setOnClickListener(this)
 
         binding.maxApps0.setOnClickListener(this)
         binding.maxApps1.setOnClickListener(this)
@@ -277,10 +264,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun initObservers() {
-        if (prefs.firstSettingsOpen) {
-            viewModel.showDialog.postValue(Constants.Dialog.ABOUT)
-            prefs.firstSettingsOpen = false
-        }
+        prefs.firstSettingsOpen = false
         viewModel.isOlauncherDefault.observe(viewLifecycleOwner) {
             if (it) {
                 binding.setLauncher.text = getString(R.string.change_default_launcher)
@@ -504,13 +488,8 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun toggleKeyboardText() {
-        if (prefs.autoShowKeyboard && prefs.keyboardMessageShown.not()) {
-            viewModel.showDialog.postValue(Constants.Dialog.KEYBOARD)
-            prefs.keyboardMessageShown = true
-        } else {
-            prefs.autoShowKeyboard = !prefs.autoShowKeyboard
-            populateKeyboardText()
-        }
+        prefs.autoShowKeyboard = !prefs.autoShowKeyboard
+        populateKeyboardText()
     }
 
     private fun updateTheme(appTheme: Int) {
@@ -676,20 +655,8 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             binding.rate.setCompoundDrawablesWithIntrinsicBounds(0, android.R.drawable.arrow_down_float, 0, 0)
     }
 
-    private fun populateProMessage() {
-        if (prefs.proMessageShown.not() && prefs.userState == Constants.UserState.SHARE) {
-            prefs.proMessageShown = true
-            viewModel.showDialog.postValue(Constants.Dialog.PRO_MESSAGE)
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onDestroy() {
-        viewModel.checkForMessages.call()
-        super.onDestroy()
     }
 }
