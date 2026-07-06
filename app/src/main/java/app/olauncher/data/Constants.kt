@@ -70,7 +70,6 @@ object Constants {
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678
 
-    const val HINT_RATE_US = 15
 
     const val LONG_PRESS_DELAY_MS = 500L
     const val ONE_DAY_IN_MILLIS = 86400000L
@@ -79,7 +78,6 @@ object Constants {
 
     const val MIN_ANIM_REFRESH_RATE = 30f
 
-    const val URL_ABOUT_OLAUNCHER = "https://tanujnotes.substack.com/p/olauncher-minimal-af-launcher?utm_source=olauncher"
     const val URL_OLAUNCHER_PRIVACY = "https://tanujnotes.notion.site/Olauncher-Privacy-Policy-dd6ac5101ddd4b3da9d27057889d44ab"
     const val URL_DOUBLE_TAP = "https://tanujnotes.notion.site/Double-tap-to-lock-Olauncher-0f7fb103ec1f47d7a90cdfdcd7fb86ef"
     const val URL_OLAUNCHER_GITHUB = "https://www.github.com/tanujnotes/Olauncher"

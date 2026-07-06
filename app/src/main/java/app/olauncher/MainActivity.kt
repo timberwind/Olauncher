@@ -93,6 +93,12 @@ class MainActivity : AppCompatActivity() {
             viewModel.resetLauncherLiveData.call()
         }
 
+        // Daily wallpaper setting removed; make sure any previously scheduled worker stops
+        if (prefs.dailyWallpaper) {
+            prefs.dailyWallpaper = false
+            viewModel.cancelWallpaperWorker()
+        }
+
         initClickListeners()
         initObservers(viewModel)
         viewModel.getAppList()
