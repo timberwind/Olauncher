@@ -46,6 +46,8 @@ class AppDrawerFragment : Fragment() {
 
     private var flag = Constants.FLAG_LAUNCH_APP
     private var canRename = false
+    private var position = 0
+    private var index = 0
     private var currentAppList: List<AppModel>? = null
     private var currentPrivateSpaceApps: List<AppModel>? = null
     private var currentPrivateSpaceLocked: Boolean = true
@@ -70,6 +72,8 @@ class AppDrawerFragment : Fragment() {
         arguments?.let {
             flag = it.getInt(Constants.Key.FLAG, Constants.FLAG_LAUNCH_APP)
             canRename = it.getBoolean(Constants.Key.RENAME, false)
+            position = it.getInt(Constants.Key.POSITION, 0)
+            index = it.getInt(Constants.Key.INDEX, 0)
         }
 
         initViews()
@@ -82,8 +86,10 @@ class AppDrawerFragment : Fragment() {
     private fun initViews() {
         if (flag == Constants.FLAG_HIDDEN_APPS)
             binding.search.queryHint = getString(R.string.hidden_apps)
-        else if (flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_CALENDAR_APP)
+        else if (flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_CALENDAR_APP || flag == Constants.FLAG_ADD_TO_HOME_MENU || flag == Constants.FLAG_SET_MENU_APP)
             binding.search.queryHint = "Please select an app"
+        if (flag == Constants.FLAG_SET_MENU_APP)
+            binding.appRemove.visibility = View.VISIBLE
         try {
             searchTextView = binding.search.findViewById(R.id.search_src_text)
             searchTextView?.gravity = prefs.appLabelAlignment
@@ -110,6 +116,9 @@ class AppDrawerFragment : Fragment() {
                     adapter.filter.filter(newText)
                     binding.appRename.visibility =
                         if (canRename && newText.isNotBlank()) View.VISIBLE else View.GONE
+                    binding.appMenu.visibility =
+                        if (flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_8 && newText.isNotBlank())
+                            View.VISIBLE else View.GONE
                     return true
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -151,7 +160,7 @@ class AppDrawerFragment : Fragment() {
             flag,
             prefs.appLabelAlignment,
             appClickListener = { appModel ->
-                viewModel.selectedApp(appModel, flag)
+                viewModel.selectedApp(appModel, flag, position, index)
                 if (flag == Constants.FLAG_LAUNCH_APP || flag == Constants.FLAG_HIDDEN_APPS)
                     findNavController().popBackStack(R.id.mainFragment, false)
                 else
@@ -317,8 +326,31 @@ class AppDrawerFragment : Fragment() {
                 Constants.FLAG_SET_HOME_APP_6 -> prefs.appName6 = name
                 Constants.FLAG_SET_HOME_APP_7 -> prefs.appName7 = name
                 Constants.FLAG_SET_HOME_APP_8 -> prefs.appName8 = name
+                Constants.FLAG_SET_MENU_APP -> viewModel.renameMenuApp(position, index, name)
             }
             findNavController().popBackStack()
+        }
+
+        binding.appRemove.setOnClickListener {
+            if (flag == Constants.FLAG_SET_MENU_APP) {
+                viewModel.removeFromHomeMenu(position, index)
+                requireContext().showToast(getString(R.string.removed_from_menu))
+                findNavController().popBackStack()
+            }
+        }
+
+        binding.appMenu.setOnClickListener {
+            val name = binding.search.query.toString().trim()
+            if (name.isEmpty()) {
+                requireContext().showToast(getString(R.string.type_a_new_app_name_first))
+                binding.search.showKeyboard()
+                return@setOnClickListener
+            }
+            if (flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_8) {
+                viewModel.makeHomeMenu(flag, name)
+                requireContext().showToast(getString(R.string.menu_created_message))
+                findNavController().popBackStack()
+            }
         }
     }
 

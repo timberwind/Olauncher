@@ -67,6 +67,11 @@
     <string name="hide">Hide</string>
     <string name="status_bar">Status bar on top</string>
     <string name="rename">Rename</string>
+    <string name="menu">Menu</string>
+    <string name="menu_created_message">Menu created. Tap it on the home screen, then tap + to add apps.</string>
+    <string name="removed_from_menu">Removed from menu</string>
+    <string name="remove">Remove</string>
+    <string name="add_app_to_menu" translatable="false">+</string>
     <string name="show_date_time">Show date time</string>
     <string name="appearance">Appearance</string>
     <string name="gestures">Gestures</string>
