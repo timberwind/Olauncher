@@ -19,6 +19,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.MenuAppModel
 import app.olauncher.data.Prefs
 import app.olauncher.helper.SingleLiveEvent
 import app.olauncher.helper.WallpaperWorker
@@ -65,7 +66,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Home button for recents feature disabled
     // val showRecentApps = SingleLiveEvent<Unit?>()
 
-    fun selectedApp(appModel: AppModel, flag: Int) {
+    fun selectedApp(appModel: AppModel, flag: Int, position: Int = 0, index: Int = 0) {
         if (appModel is AppModel.PrivateSpaceHeader) return
         when (flag) {
             Constants.FLAG_LAUNCH_APP -> {
@@ -98,6 +99,77 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FLAG_SET_CLOCK_APP -> saveClockApp(appModel)
             Constants.FLAG_SET_CALENDAR_APP -> saveCalendarApp(appModel)
             Constants.FLAG_SET_SCREEN_TIME_APP -> saveScreenTimeApp(appModel)
+            Constants.FLAG_ADD_TO_HOME_MENU -> addToHomeMenu(appModel, position)
+            Constants.FLAG_SET_MENU_APP -> replaceMenuApp(appModel, position, index)
+        }
+    }
+
+    fun makeHomeMenu(position: Int, menuName: String) {
+        if (position !in 1..8) return
+        // Re-creating a menu on a menu slot just renames it, keeping its apps
+        if (prefs.getIsMenu(position).not())
+            prefs.setMenuApps(position, emptyList())
+        prefs.setIsMenu(position, true)
+        prefs.setAppName(position, menuName)
+        prefs.setAppPackage(position, "")
+        refreshHome(false)
+    }
+
+    private fun toMenuAppModel(appModel: AppModel): MenuAppModel? {
+        return when (appModel) {
+            is AppModel.App -> MenuAppModel(
+                appLabel = appModel.appLabel,
+                appPackage = appModel.appPackage,
+                activityClassName = appModel.activityClassName,
+                userString = appModel.user.toString()
+            )
+
+            is AppModel.PinnedShortcut -> MenuAppModel(
+                appLabel = appModel.appLabel,
+                appPackage = appModel.appPackage,
+                activityClassName = null,
+                userString = appModel.user.toString(),
+                isShortcut = true,
+                shortcutId = appModel.shortcutId
+            )
+
+            else -> null
+        }
+    }
+
+    private fun addToHomeMenu(appModel: AppModel, position: Int) {
+        if (position !in 1..8) return
+        val menuApp = toMenuAppModel(appModel) ?: return
+        val menuApps = prefs.getMenuApps(position)
+        menuApps.add(menuApp)
+        prefs.setMenuApps(position, menuApps)
+        refreshHome(false)
+    }
+
+    private fun replaceMenuApp(appModel: AppModel, position: Int, index: Int) {
+        if (position !in 1..8) return
+        val menuApp = toMenuAppModel(appModel) ?: return
+        val menuApps = prefs.getMenuApps(position)
+        if (index in menuApps.indices) {
+            menuApps[index] = menuApp
+            prefs.setMenuApps(position, menuApps)
+            refreshHome(false)
+        }
+    }
+
+    fun renameMenuApp(position: Int, index: Int, label: String) {
+        val menuApps = prefs.getMenuApps(position)
+        if (index in menuApps.indices) {
+            menuApps[index] = menuApps[index].copy(appLabel = label)
+            prefs.setMenuApps(position, menuApps)
+        }
+    }
+
+    fun removeFromHomeMenu(position: Int, index: Int) {
+        val menuApps = prefs.getMenuApps(position)
+        if (index in menuApps.indices) {
+            menuApps.removeAt(index)
+            prefs.setMenuApps(position, menuApps)
         }
     }
 
@@ -267,6 +339,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        prefs.setIsMenu(position, false)
         refreshHome(false)
     }
 

@@ -16,6 +16,7 @@ import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.bundleOf
@@ -55,6 +56,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     private lateinit var prefs: Prefs
     private lateinit var viewModel: MainViewModel
     private lateinit var deviceManager: DevicePolicyManager
+    private lateinit var menuBackCallback: OnBackPressedCallback
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -77,10 +79,18 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         setHomeAlignment(prefs.homeAlignment)
         initSwipeTouchListener()
         initClickListeners()
+
+        menuBackCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                hideHomeMenu()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, menuBackCallback)
     }
 
     override fun onResume() {
         super.onResume()
+        hideHomeMenu()
         populateHomeScreen(false)
         viewModel.isOlauncherDefault()
         if (prefs.showStatusBar) showStatusBar()
@@ -236,6 +246,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.setDefaultLauncher.setOnLongClickListener(this)
         binding.tvScreenTime.setOnClickListener(this)
         binding.tvScreenTime.setOnLongClickListener(this)
+        binding.menuLayout.setOnClickListener { hideHomeMenu() }
     }
 
     private fun setHomeAlignment(horizontalGravity: Int = prefs.homeAlignment) {
@@ -307,61 +318,37 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val homeAppsNum = prefs.homeAppsNum
         if (homeAppsNum == 0) return
 
-        binding.homeApp1.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp1, prefs.appName1, prefs.appPackage1, prefs.appUser1, prefs.isShortcut1, prefs.shortcutId1)) {
-            prefs.appName1 = ""
-            prefs.appPackage1 = ""
-        }
-        if (homeAppsNum == 1) return
-
-        binding.homeApp2.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp2, prefs.appName2, prefs.appPackage2, prefs.appUser2, prefs.isShortcut2, prefs.shortcutId2)) {
-            prefs.appName2 = ""
-            prefs.appPackage2 = ""
-        }
-        if (homeAppsNum == 2) return
-
-        binding.homeApp3.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp3, prefs.appName3, prefs.appPackage3, prefs.appUser3, prefs.isShortcut3, prefs.shortcutId3)) {
-            prefs.appName3 = ""
-            prefs.appPackage3 = ""
-        }
-        if (homeAppsNum == 3) return
-
-        binding.homeApp4.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp4, prefs.appName4, prefs.appPackage4, prefs.appUser4, prefs.isShortcut4, prefs.shortcutId4)) {
-            prefs.appName4 = ""
-            prefs.appPackage4 = ""
-        }
-        if (homeAppsNum == 4) return
-
-        binding.homeApp5.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp5, prefs.appName5, prefs.appPackage5, prefs.appUser5, prefs.isShortcut5, prefs.shortcutId5)) {
-            prefs.appName5 = ""
-            prefs.appPackage5 = ""
-        }
-        if (homeAppsNum == 5) return
-
-        binding.homeApp6.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp6, prefs.appName6, prefs.appPackage6, prefs.appUser6, prefs.isShortcut6, prefs.shortcutId6)) {
-            prefs.appName6 = ""
-            prefs.appPackage6 = ""
-        }
-        if (homeAppsNum == 6) return
-
-        binding.homeApp7.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp7, prefs.appName7, prefs.appPackage7, prefs.appUser7, prefs.isShortcut7, prefs.shortcutId7)) {
-            prefs.appName7 = ""
-            prefs.appPackage7 = ""
-        }
-        if (homeAppsNum == 7) return
-
-        binding.homeApp8.visibility = View.VISIBLE
-        if (!setHomeAppText(binding.homeApp8, prefs.appName8, prefs.appPackage8, prefs.appUser8, prefs.isShortcut8, prefs.shortcutId8)) {
-            prefs.appName8 = ""
-            prefs.appPackage8 = ""
+        val homeAppViews = homeAppViews()
+        for (location in 1..homeAppsNum.coerceAtMost(homeAppViews.size)) {
+            val textView = homeAppViews[location - 1]
+            textView.visibility = View.VISIBLE
+            if (prefs.getIsMenu(location)) {
+                textView.text = prefs.getAppName(location)
+            } else if (!setHomeAppText(
+                    textView,
+                    prefs.getAppName(location),
+                    prefs.getAppPackage(location),
+                    prefs.getAppUser(location),
+                    prefs.getIsShortcut(location),
+                    prefs.getShortcutId(location)
+                )
+            ) {
+                prefs.setAppName(location, "")
+                prefs.setAppPackage(location, "")
+            }
         }
     }
+
+    private fun homeAppViews() = listOf(
+        binding.homeApp1,
+        binding.homeApp2,
+        binding.homeApp3,
+        binding.homeApp4,
+        binding.homeApp5,
+        binding.homeApp6,
+        binding.homeApp7,
+        binding.homeApp8,
+    )
 
     private fun setHomeAppText(
         textView: TextView,
@@ -481,6 +468,10 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     private fun homeAppClicked(location: Int) {
+        if (prefs.getIsMenu(location)) {
+            showHomeMenu(location)
+            return
+        }
         launchAppOrShortcut(
             appName = prefs.getAppName(location),
             packageName = prefs.getAppPackage(location),
@@ -489,6 +480,56 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             isShortcut = prefs.getIsShortcut(location),
             userString = prefs.getAppUser(location)
         )
+    }
+
+    private fun showHomeMenu(location: Int) {
+        populateHomeMenu(location)
+        binding.menuLayout.visibility = View.VISIBLE
+        menuBackCallback.isEnabled = true
+    }
+
+    private fun hideHomeMenu() {
+        binding.menuLayout.visibility = View.GONE
+        menuBackCallback.isEnabled = false
+    }
+
+    private fun populateHomeMenu(location: Int) {
+        val container = binding.menuAppsLayout
+        container.removeAllViews()
+        val inflater = LayoutInflater.from(requireContext())
+
+        prefs.getMenuApps(location).forEachIndexed { index, menuApp ->
+            val textView = inflater.inflate(R.layout.home_menu_app, container, false) as TextView
+            textView.text = menuApp.appLabel
+            textView.gravity = prefs.homeAlignment
+            textView.setOnClickListener {
+                hideHomeMenu()
+                launchAppOrShortcut(
+                    appName = menuApp.appLabel,
+                    packageName = menuApp.appPackage,
+                    activityClassName = menuApp.activityClassName,
+                    shortcutId = menuApp.shortcutId,
+                    isShortcut = menuApp.isShortcut,
+                    userString = menuApp.userString
+                )
+            }
+            textView.setOnLongClickListener {
+                hideHomeMenu()
+                showAppList(Constants.FLAG_SET_MENU_APP, rename = true, position = location, index = index)
+                true
+            }
+            container.addView(textView)
+        }
+
+        val addView = inflater.inflate(R.layout.home_menu_app, container, false) as TextView
+        addView.text = getString(R.string.add_app_to_menu)
+        addView.alpha = 0.5f
+        addView.gravity = prefs.homeAlignment
+        addView.setOnClickListener {
+            hideHomeMenu()
+            showAppList(Constants.FLAG_ADD_TO_HOME_MENU, position = location)
+        }
+        container.addView(addView)
     }
 
     private fun openSwipeRightApp() {
@@ -517,14 +558,16 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         )
     }
 
-    private fun showAppList(flag: Int, rename: Boolean = false, includeHiddenApps: Boolean = false) {
+    private fun showAppList(flag: Int, rename: Boolean = false, includeHiddenApps: Boolean = false, position: Int = 0, index: Int = 0) {
         viewModel.getAppList(includeHiddenApps)
         try {
             findNavController().navigate(
                 R.id.action_mainFragment_to_appListFragment,
                 bundleOf(
                     Constants.Key.FLAG to flag,
-                    Constants.Key.RENAME to rename
+                    Constants.Key.RENAME to rename,
+                    Constants.Key.POSITION to position,
+                    Constants.Key.INDEX to index
                 )
             )
         } catch (e: Exception) {
@@ -532,7 +575,9 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
                 R.id.appListFragment,
                 bundleOf(
                     Constants.Key.FLAG to flag,
-                    Constants.Key.RENAME to rename
+                    Constants.Key.RENAME to rename,
+                    Constants.Key.POSITION to position,
+                    Constants.Key.INDEX to index
                 )
             )
             e.printStackTrace()

@@ -113,6 +113,9 @@ class Prefs(context: Context) {
     private val IS_SHORTCUT_8 = "IS_SHORTCUT_8"
     private val SHORTCUT_ID_8 = "SHORTCUT_ID_8"
 
+    private val IS_MENU_PREFIX = "IS_MENU_"
+    private val MENU_APPS_PREFIX = "MENU_APPS_"
+
     private val SHORTCUT_ID_SWIPE_LEFT = "SHORTCUT_ID_SWIPE_LEFT"
     private val IS_SHORTCUT_SWIPE_LEFT = "IS_SHORTCUT_SWIPE_LEFT"
     private val SHORTCUT_ID_SWIPE_RIGHT = "SHORTCUT_ID_SWIPE_RIGHT"
@@ -616,6 +619,42 @@ class Prefs(context: Context) {
             else -> false
         }
     }
+
+    fun setAppName(location: Int, name: String) {
+        when (location) {
+            1 -> appName1 = name
+            2 -> appName2 = name
+            3 -> appName3 = name
+            4 -> appName4 = name
+            5 -> appName5 = name
+            6 -> appName6 = name
+            7 -> appName7 = name
+            8 -> appName8 = name
+        }
+    }
+
+    fun setAppPackage(location: Int, packageName: String) {
+        when (location) {
+            1 -> appPackage1 = packageName
+            2 -> appPackage2 = packageName
+            3 -> appPackage3 = packageName
+            4 -> appPackage4 = packageName
+            5 -> appPackage5 = packageName
+            6 -> appPackage6 = packageName
+            7 -> appPackage7 = packageName
+            8 -> appPackage8 = packageName
+        }
+    }
+
+    fun getIsMenu(location: Int): Boolean = prefs.getBoolean("$IS_MENU_PREFIX$location", false)
+
+    fun setIsMenu(location: Int, value: Boolean) = prefs.edit { putBoolean("$IS_MENU_PREFIX$location", value) }
+
+    fun getMenuApps(location: Int): MutableList<MenuAppModel> =
+        MenuAppModel.listFromString(prefs.getString("$MENU_APPS_PREFIX$location", "").toString())
+
+    fun setMenuApps(location: Int, apps: List<MenuAppModel>) =
+        prefs.edit { putString("$MENU_APPS_PREFIX$location", MenuAppModel.listToString(apps)) }
 
     fun setAppActivityClassName(location: Int, activityClassName: String) {
         when (location) {

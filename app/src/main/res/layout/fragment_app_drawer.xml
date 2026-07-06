@@ -49,6 +49,30 @@
             android:textAllCaps="true"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/appMenu"
+            style="@style/TextSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="20dp"
+            android:paddingVertical="@dimen/app_padding_vertical"
+            android:text="@string/menu"
+            android:textAllCaps="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/appRemove"
+            style="@style/TextSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="20dp"
+            android:paddingVertical="@dimen/app_padding_vertical"
+            android:text="@string/remove"
+            android:textAllCaps="true"
+            android:visibility="gone" />
+
     </LinearLayout>
 
     <Space
