@@ -30,8 +30,6 @@ import app.olauncher.helper.hideKeyboard
 import app.olauncher.helper.isEinkDisplay
 import app.olauncher.helper.isSystemApp
 import app.olauncher.helper.openAppInfo
-import app.olauncher.helper.openSearch
-import app.olauncher.helper.openUrl
 import app.olauncher.helper.showKeyboard
 import app.olauncher.helper.showToast
 import app.olauncher.helper.uninstall
@@ -101,11 +99,7 @@ class AppDrawerFragment : Fragment() {
     private fun initSearch() {
         binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query?.startsWith("!") == true)
-                    requireContext().openUrl(Constants.URL_DUCK_SEARCH + query.replace(" ", "%20"))
-                else if (adapter.itemCount == 0)
-                    requireContext().openSearch(query?.trim())
-                else
+                if (adapter.itemCount > 0)
                     adapter.launchFirstInList()
                 return true
             }

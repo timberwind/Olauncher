@@ -32,7 +32,6 @@ import app.olauncher.helper.getColorFromAttr
 import app.olauncher.helper.isAccessServiceEnabled
 import app.olauncher.helper.isTablet
 import app.olauncher.helper.openAppInfo
-import app.olauncher.helper.openUrl
 import app.olauncher.helper.showToast
 import app.olauncher.listener.DeviceAdmin
 
@@ -121,7 +120,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.textSizeValue -> binding.textSizesLayout.visibility = View.VISIBLE
             R.id.actionAccessibility -> openAccessibilityService()
             R.id.closeAccessibility -> toggleAccessibilityVisibility(false)
-            R.id.notWorking -> requireContext().openUrl(Constants.URL_DOUBLE_TAP)
 
             R.id.tvGestures -> binding.flSwipeDown.visibility = View.VISIBLE
 
@@ -200,7 +198,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.textSizeValue.setOnClickListener(this)
         binding.actionAccessibility.setOnClickListener(this)
         binding.closeAccessibility.setOnClickListener(this)
-        binding.notWorking.setOnClickListener(this)
 
         binding.maxApps0.setOnClickListener(this)
         binding.maxApps1.setOnClickListener(this)
@@ -329,8 +326,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun toggleAccessibilityVisibility(show: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-            binding.notWorking.visibility = View.VISIBLE
         if (isAccessServiceEnabled(requireContext()))
             binding.actionAccessibility.text = getString(R.string.disable)
         binding.accessibilityLayout.isVisible = show

@@ -25,12 +25,10 @@ import app.olauncher.data.Prefs
 import app.olauncher.databinding.ActivityMainBinding
 import app.olauncher.helper.getColorFromAttr
 import app.olauncher.helper.hasBeenHours
-import app.olauncher.helper.isDarkThemeOn
 import app.olauncher.helper.isDefaultLauncher
 import app.olauncher.helper.isEinkDisplay
 import app.olauncher.helper.isTablet
 import app.olauncher.helper.resetLauncherViaFakeActivity
-import app.olauncher.helper.setPlainWallpaper
 import app.olauncher.helper.showLauncherSelector
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -88,15 +86,8 @@ class MainActivity : AppCompatActivity() {
         if (prefs.firstOpen) {
             viewModel.firstOpen(true)
             prefs.firstOpen = false
-            prefs.firstOpenTime = System.currentTimeMillis()
             viewModel.setDefaultClockApp()
             viewModel.resetLauncherLiveData.call()
-        }
-
-        // Daily wallpaper setting removed; make sure any previously scheduled worker stops
-        if (prefs.dailyWallpaper) {
-            prefs.dailyWallpaper = false
-            viewModel.cancelWallpaperWorker()
         }
 
         initClickListeners()
@@ -155,11 +146,6 @@ class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         AppCompatDelegate.setDefaultNightMode(prefs.appTheme)
-        if (prefs.dailyWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
-            setPlainWallpaper()
-            viewModel.setWallpaperWorker()
-            recreate()
-        }
     }
 
     private fun initClickListeners() {
@@ -213,12 +199,6 @@ class MainActivity : AppCompatActivity() {
         binding.messageLayout.visibility = View.GONE
         if (navController.currentDestination?.id != R.id.mainFragment)
             navController.popBackStack(R.id.mainFragment, false)
-    }
-
-    private fun setPlainWallpaper() {
-        if (this.isDarkThemeOn())
-            setPlainWallpaper(this, android.R.color.black)
-        else setPlainWallpaper(this, android.R.color.white)
     }
 
     private fun openLauncherChooser(resetFailed: Boolean) {

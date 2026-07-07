@@ -10,13 +10,10 @@ class Prefs(context: Context) {
     private val PREFS_FILENAME = "app.olauncher"
 
     private val FIRST_OPEN = "FIRST_OPEN"
-    private val FIRST_OPEN_TIME = "FIRST_OPEN_TIME"
     private val FIRST_SETTINGS_OPEN = "FIRST_SETTINGS_OPEN"
     private val LOCK_MODE = "LOCK_MODE"
     private val HOME_APPS_NUM = "HOME_APPS_NUM"
     private val AUTO_SHOW_KEYBOARD = "AUTO_SHOW_KEYBOARD"
-    private val DAILY_WALLPAPER = "DAILY_WALLPAPER"
-    private val DAILY_WALLPAPER_URL = "DAILY_WALLPAPER_URL"
     private val HOME_ALIGNMENT = "HOME_ALIGNMENT"
     private val HOME_BOTTOM_ALIGNMENT = "HOME_BOTTOM_ALIGNMENT"
     private val APP_LABEL_ALIGNMENT = "APP_LABEL_ALIGNMENT"
@@ -118,10 +115,6 @@ class Prefs(context: Context) {
         get() = prefs.getBoolean(FIRST_OPEN, true)
         set(value) = prefs.edit { putBoolean(FIRST_OPEN, value).apply() }
 
-    var firstOpenTime: Long
-        get() = prefs.getLong(FIRST_OPEN_TIME, 0L)
-        set(value) = prefs.edit { putLong(FIRST_OPEN_TIME, value).apply() }
-
     var firstSettingsOpen: Boolean
         get() = prefs.getBoolean(FIRST_SETTINGS_OPEN, true)
         set(value) = prefs.edit { putBoolean(FIRST_SETTINGS_OPEN, value).apply() }
@@ -133,14 +126,6 @@ class Prefs(context: Context) {
     var autoShowKeyboard: Boolean
         get() = prefs.getBoolean(AUTO_SHOW_KEYBOARD, true)
         set(value) = prefs.edit { putBoolean(AUTO_SHOW_KEYBOARD, value).apply() }
-
-    var dailyWallpaper: Boolean
-        get() = prefs.getBoolean(DAILY_WALLPAPER, false)
-        set(value) = prefs.edit { putBoolean(DAILY_WALLPAPER, value).apply() }
-
-    var dailyWallpaperUrl: String
-        get() = prefs.getString(DAILY_WALLPAPER_URL, "").toString()
-        set(value) = prefs.edit { putString(DAILY_WALLPAPER_URL, value).apply() }
 
     var homeAppsNum: Int
         get() = prefs.getInt(HOME_APPS_NUM, 4)

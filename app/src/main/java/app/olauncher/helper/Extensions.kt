@@ -2,7 +2,6 @@ package app.olauncher.helper
 
 import android.app.Activity
 import android.app.AppOpsManager
-import android.app.SearchManager
 import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Context
@@ -10,7 +9,6 @@ import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.net.Uri
 import android.os.Build
 import android.os.UserHandle
 import android.provider.Settings
@@ -22,7 +20,6 @@ import androidx.annotation.RequiresApi
 import app.olauncher.BuildConfig
 import app.olauncher.R
 import app.olauncher.data.Constants
-import java.util.Calendar
 import java.util.Locale
 
 fun View.hideKeyboard() {
@@ -83,12 +80,6 @@ fun Context.resetLauncherViaFakeActivity() {
         startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
 }
 
-fun Context.openSearch(query: String? = null) {
-    val intent = Intent(Intent.ACTION_WEB_SEARCH)
-    intent.putExtra(SearchManager.QUERY, query ?: "")
-    startActivity(intent)
-}
-
 fun Context.isEinkDisplay(): Boolean {
     return try {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -99,24 +90,6 @@ fun Context.isEinkDisplay(): Boolean {
     }
 }
 
-fun Context.searchOnPlayStore(query: String? = null): Boolean {
-    return try {
-        startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://play.google.com/store/search?q=$query&c=apps")
-            ).addFlags(
-                Intent.FLAG_ACTIVITY_NO_HISTORY or
-                        Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
-                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-            )
-        )
-        true
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
-    }
-}
 
 fun Context.isPackageInstalled(packageName: String, userHandle: UserHandle = android.os.Process.myUserHandle()): Boolean {
     val launcher = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -164,19 +137,6 @@ fun Context.formattedTimeSpent(timeSpent: Long): String {
         else -> "<1m"
     }
 }
-
-fun Long.convertEpochToMidnight(): Long {
-    val calendar = Calendar.getInstance()
-    calendar.timeInMillis = this
-    calendar.set(Calendar.HOUR_OF_DAY, 0)
-    calendar.set(Calendar.MINUTE, 0)
-    calendar.set(Calendar.SECOND, 0)
-    calendar.set(Calendar.MILLISECOND, 0)
-    return calendar.timeInMillis
-}
-
-fun Long.isDaySince(): Int = ((System.currentTimeMillis().convertEpochToMidnight() - this.convertEpochToMidnight())
-        / Constants.ONE_DAY_IN_MILLIS).toInt()
 
 fun Long.hasBeenDays(days: Int): Boolean =
     ((System.currentTimeMillis() - this) / Constants.ONE_DAY_IN_MILLIS) >= days
