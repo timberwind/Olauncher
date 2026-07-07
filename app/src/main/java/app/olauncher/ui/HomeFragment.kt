@@ -35,6 +35,7 @@ import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.appUsagePermissionGranted
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.expandNotificationDrawer
+import app.olauncher.helper.getHomeFontTypeface
 import app.olauncher.helper.getUserHandleFromString
 import app.olauncher.helper.isPackageInstalled
 import app.olauncher.helper.openAlarmApp
@@ -89,6 +90,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     override fun onResume() {
         super.onResume()
         hideHomeMenu()
+        applyHomeFont()
         populateHomeScreen(false)
         viewModel.isOlauncherDefault()
         if (prefs.showStatusBar) showStatusBar()
@@ -479,6 +481,15 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         )
     }
 
+    private fun applyHomeFont() {
+        val typeface = getHomeFontTypeface(prefs.homeFont)
+        listOf(
+            binding.clock, binding.date, binding.tvScreenTime,
+            binding.homeApp1, binding.homeApp2, binding.homeApp3, binding.homeApp4,
+            binding.homeApp5, binding.homeApp6, binding.homeApp7, binding.homeApp8
+        ).forEach { it.typeface = typeface }
+    }
+
     private fun showHomeMenu(location: Int) {
         populateHomeMenu(location)
         binding.menuLayout.visibility = View.VISIBLE
@@ -494,11 +505,13 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val container = binding.menuAppsLayout
         container.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
+        val menuTypeface = getHomeFontTypeface(prefs.homeFont)
 
         prefs.getMenuApps(location).forEachIndexed { index, menuApp ->
             val textView = inflater.inflate(R.layout.home_menu_app, container, false) as TextView
             textView.text = menuApp.appLabel
             textView.gravity = prefs.homeAlignment
+            textView.typeface = menuTypeface
             textView.setOnClickListener {
                 hideHomeMenu()
                 launchAppOrShortcut(
@@ -522,6 +535,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         addView.text = getString(R.string.add_app_to_menu)
         addView.alpha = 0.5f
         addView.gravity = prefs.homeAlignment
+        addView.typeface = menuTypeface
         addView.setOnClickListener {
             hideHomeMenu()
             showAppList(Constants.FLAG_ADD_TO_HOME_MENU, position = location)

@@ -32,6 +32,15 @@ object Constants {
         const val NOTIFICATIONS = 2
     }
 
+    object FontFamily {
+        const val LIGHT = 0
+        const val REGULAR = 1
+        const val SERIF = 2
+        const val MONOSPACE = 3
+        const val CONDENSED = 4
+        const val CASUAL = 5
+    }
+
     object CharacterIndicator {
         const val SHOW = 102
         const val HIDE = 101

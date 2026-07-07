@@ -29,6 +29,7 @@ import app.olauncher.databinding.FragmentSettingsBinding
 import app.olauncher.helper.animateAlpha
 import app.olauncher.helper.appUsagePermissionGranted
 import app.olauncher.helper.getColorFromAttr
+import app.olauncher.helper.getHomeFontTypeface
 import app.olauncher.helper.isAccessServiceEnabled
 import app.olauncher.helper.isTablet
 import app.olauncher.helper.openAppInfo
@@ -69,6 +70,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         // Home button for recents feature disabled
         // populateHomeButtonRecents()
         populateAppThemeText()
+        populateFont()
         populateTextSize()
         populateAlignment()
         populateStatusBar()
@@ -84,6 +86,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.dateTimeSelectLayout.visibility = View.GONE
         binding.appThemeSelectLayout.visibility = View.GONE
         binding.swipeDownSelectLayout.visibility = View.GONE
+        binding.fontSelectLayout.visibility = View.GONE
         if (view.id != R.id.textSizeMinus && view.id != R.id.textSizePlus) {
             if (binding.textSizesLayout.isVisible) {
                 binding.textSizesLayout.visibility = View.GONE
@@ -117,6 +120,13 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.themeLight -> updateTheme(AppCompatDelegate.MODE_NIGHT_NO)
             R.id.themeDark -> updateTheme(AppCompatDelegate.MODE_NIGHT_YES)
             R.id.themeSystem -> updateTheme(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            R.id.fontText -> binding.fontSelectLayout.visibility = View.VISIBLE
+            R.id.fontLight -> updateFont(Constants.FontFamily.LIGHT)
+            R.id.fontRegular -> updateFont(Constants.FontFamily.REGULAR)
+            R.id.fontSerif -> updateFont(Constants.FontFamily.SERIF)
+            R.id.fontMonospace -> updateFont(Constants.FontFamily.MONOSPACE)
+            R.id.fontCondensed -> updateFont(Constants.FontFamily.CONDENSED)
+            R.id.fontCasual -> updateFont(Constants.FontFamily.CASUAL)
             R.id.textSizeValue -> binding.textSizesLayout.visibility = View.VISIBLE
             R.id.actionAccessibility -> openAccessibilityService()
             R.id.closeAccessibility -> toggleAccessibilityVisibility(false)
@@ -195,6 +205,13 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.themeLight.setOnClickListener(this)
         binding.themeDark.setOnClickListener(this)
         binding.themeSystem.setOnClickListener(this)
+        binding.fontText.setOnClickListener(this)
+        binding.fontLight.setOnClickListener(this)
+        binding.fontRegular.setOnClickListener(this)
+        binding.fontSerif.setOnClickListener(this)
+        binding.fontMonospace.setOnClickListener(this)
+        binding.fontCondensed.setOnClickListener(this)
+        binding.fontCasual.setOnClickListener(this)
         binding.textSizeValue.setOnClickListener(this)
         binding.actionAccessibility.setOnClickListener(this)
         binding.closeAccessibility.setOnClickListener(this)
@@ -428,6 +445,26 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             AppCompatDelegate.MODE_NIGHT_NO -> binding.appThemeText.text = getString(R.string.light)
             else -> binding.appThemeText.text = getString(R.string.system_default)
         }
+    }
+
+    private fun updateFont(font: Int) {
+        if (prefs.homeFont == font) return
+        prefs.homeFont = font
+        populateFont()
+    }
+
+    private fun populateFont() {
+        binding.fontText.text = getString(
+            when (prefs.homeFont) {
+                Constants.FontFamily.REGULAR -> R.string.font_regular
+                Constants.FontFamily.SERIF -> R.string.font_serif
+                Constants.FontFamily.MONOSPACE -> R.string.font_monospace
+                Constants.FontFamily.CONDENSED -> R.string.font_condensed
+                Constants.FontFamily.CASUAL -> R.string.font_casual
+                else -> R.string.font_light
+            }
+        )
+        binding.fontText.typeface = getHomeFontTypeface(prefs.homeFont)
     }
 
     private fun populateTextSize() {

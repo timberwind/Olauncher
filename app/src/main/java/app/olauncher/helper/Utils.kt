@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.UserHandle
@@ -261,6 +262,15 @@ fun getDefaultLauncherPackage(context: Context): String {
     return if (result?.activityInfo != null) {
         result.activityInfo.packageName
     } else "android"
+}
+
+fun getHomeFontTypeface(font: Int): Typeface = when (font) {
+    Constants.FontFamily.REGULAR -> Typeface.create("sans-serif", Typeface.NORMAL)
+    Constants.FontFamily.SERIF -> Typeface.create("serif", Typeface.NORMAL)
+    Constants.FontFamily.MONOSPACE -> Typeface.create("monospace", Typeface.NORMAL)
+    Constants.FontFamily.CONDENSED -> Typeface.create("sans-serif-condensed", Typeface.NORMAL)
+    Constants.FontFamily.CASUAL -> Typeface.create("casual", Typeface.NORMAL)
+    else -> Typeface.create("sans-serif-light", Typeface.NORMAL)
 }
 
 fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {

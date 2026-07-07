@@ -79,6 +79,13 @@
     <string name="system_default">System</string>
     <string name="dark">Dark</string>
     <string name="light">Light</string>
+    <string name="font">Font</string>
+    <string name="font_light" translatable="false">Light</string>
+    <string name="font_regular" translatable="false">Regular</string>
+    <string name="font_serif" translatable="false">Serif</string>
+    <string name="font_monospace" translatable="false">Monospace</string>
+    <string name="font_condensed" translatable="false">Condensed</string>
+    <string name="font_casual" translatable="false">Casual</string>
     <string name="welcome_to_olauncher_settings">Welcome to the settings!
         \n\nRemember, if you have any questions, our About page has the answer.</string>
     <string name="rate_us_message">Hi, you won\'t see this message again.

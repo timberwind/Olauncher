@@ -24,6 +24,7 @@ class Prefs(context: Context) {
     private val HIDDEN_APPS = "HIDDEN_APPS"
     private val HIDDEN_APPS_UPDATED = "HIDDEN_APPS_UPDATED"
     private val APP_THEME = "APP_THEME"
+    private val HOME_FONT = "HOME_FONT"
     private val SWIPE_DOWN_ACTION = "SWIPE_DOWN_ACTION"
     private val TEXT_SIZE_SCALE = "TEXT_SIZE_SCALE"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
@@ -162,6 +163,10 @@ class Prefs(context: Context) {
     var appTheme: Int
         get() = prefs.getInt(APP_THEME, AppCompatDelegate.MODE_NIGHT_YES)
         set(value) = prefs.edit { putInt(APP_THEME, value).apply() }
+
+    var homeFont: Int
+        get() = prefs.getInt(HOME_FONT, Constants.FontFamily.LIGHT)
+        set(value) = prefs.edit { putInt(HOME_FONT, value).apply() }
 
     var textSizeScale: Float
         get() = prefs.getFloat(TEXT_SIZE_SCALE, 1.0f)
